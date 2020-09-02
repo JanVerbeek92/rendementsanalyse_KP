@@ -94,7 +94,8 @@
 
     
     tbl_RendementClub <- tbl_Uitbetaling %>% left_join(vec_BVOids) %>%
-        select(Persoon_id, BVO, Compensatie_seizoen, Seizoen_id, 
+        left_join(dat_Loopbaan %>% distinct(Persoon_id, Volledige_naam)) %>%
+        select(Persoon_id, BVO, Volledige_naam, Compensatie_seizoen, Seizoen_id, 
                Seizoen_id_Prev, Eerste_elftal, Soort_compensatie, Compensatie) 
 
     openxlsx::write.xlsx(tbl_RendementClub, "output/dat_RendementClub.xlsx")    
