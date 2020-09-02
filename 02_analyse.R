@@ -67,7 +67,8 @@
         ) %>%
         arrange(Persoon_id, Compensatie_seizoen, desc(PrevSeizoen)) %>%
         mutate(Eerste_elftal = ifelse(is.na(Seizoen_id_Prev), "1e_elftal", NA),
-               Soort_compensatie = ifelse(is.na(Seizoen_id_Prev), "Debuut","Opleiding")) %>% 
+               Soort_compensatie = ifelse(is.na(Seizoen_id_Prev), "Debuut","Opleiding"),
+               Seizoen_id_Prev = ifelse(is.na(Seizoen_id_Prev), Seizoen_id, Seizoen_id_Prev)) %>% 
         group_by(Persoon_id, Seizoen_id_Prev, Seizoen_id) %>%
         mutate(n = n())  %>%
         mutate(Compensatie = ifelse(
@@ -76,39 +77,25 @@
             ifelse(n == 2, round((
                 Compensatie_bedrag * 0.25
             ) * 0.5, 0), NA)
-        ))  %>% ungroup
+        ))  %>% ungroup  
                 
-                
-
-            
-            
-            left_join(vec_BVOids) %>% group_by(Persoon_id, Seizoen_id_Prev, Seizoen_id) %>%
+    
+    # Teams behorende bij BVOs
+    vec_BVOids <- bind_rows(
+        read_excel(
+            "~/OneDrive - KNVB/3. SAS data/VM/VM_BVO_teams_2020.xlsx",
+            sheet = "BVO_Jeugd_teams"
+        ),
+        read_excel(
+            "~/OneDrive - KNVB/3. SAS data/VM/VM_BVO_teams_2020.xlsx",
+            sheet = "BVO_Senioren_teams"
+        ) %>% mutate(Team = as.character(Team))
+    ) %>% distinct(BVO, BVO_id =  Vereniging_id, Team_id, Seizoen_id_Prev = Seizoen_id)  
 
     
+    tbl_RendementClub <- tbl_Uitbetaling %>% left_join(vec_BVOids) %>%
+        select(Persoon_id, BVO, Compensatie_seizoen, Seizoen_id, 
+               Seizoen_id_Prev, Eerste_elftal, Soort_compensatie, Compensatie) 
+
+    openxlsx::write.xlsx(tbl_RendementClub, "output/dat_RendementClub.xlsx")    
     
-    %>% select(
-                    Persoon_id,
-                    Volledige_naam,
-                    Seizoen_id,
-                    Seizoen_id_Prev,
-                    Compensatie,
-                    BVO,
-                    BVO_id
-                ),
-            # Current club
-            tbl_compensatie %>% group_by(Persoon_id, Seizoen_id) %>%
-                mutate(Transfer = ifelse(n() == 2, "Transfer", NA)) %>%
-                filter(Compensabel == "Compensabel") %>% ungroup %>%
-                mutate(Compensatie = round(Compensatie_bedrag * 0.25, 0)) %>%
-                left_join(
-                    vec_BVOids %>% distinct(BVO, BVO_id, Team_id, Seizoen_id = Seizoen_id_Prev)
-                ) %>% select(
-                    Persoon_id,
-                    Volledige_naam,
-                    Seizoen_id,
-                    Compensatie,
-                    BVO,
-                    BVO_id,
-                    Transfer
-                )
-        ) %>% rename(PrevBVO = "BVO")
