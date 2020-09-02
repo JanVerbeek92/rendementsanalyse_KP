@@ -71,7 +71,7 @@
         theme(axis.text.y = element_text(color = "white"))
     
     ggsave(
-        filename = paste0("compensatie bedrag", ".png"),
+        filename = paste0("output/compensatie bedrag", ".png"),
         plot,
         width =  16,
         height = 9,
