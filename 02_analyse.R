@@ -5,10 +5,15 @@
     library(readxl)
     library(dplyr)
 
-    tbl_Compensatie <- read_excel("output/dat_Compensatie.xlsx")
+    tbl_Compensatie <- read_excel("output/dat_Compensatie.xlsx") %>%
+        filter(!grepl("Achilles '29", Team))
 
     dat_Loopbaan <-
         read_excel("~/OneDrive - KNVB/3. SAS data/VM/VM_2020_Loopbaan.xlsx") 
+    
+    # Peilseizoenen 2020/'21
+    # ----------------------------------------------------------------------
+    tbl_Compensatie <- read_excel("output/dat_Compensatie_2020.xlsx") 
     
     # --------------------------------------------------------------------------
     
@@ -65,6 +70,7 @@
                 Team_id
             )  %>% filter(Compensabel == "Compensabel")
         ) %>%
+        # Aggregate
         arrange(Persoon_id, Compensatie_seizoen, desc(PrevSeizoen)) %>%
         mutate(Eerste_elftal = ifelse(is.na(Seizoen_id_Prev), "1e_elftal", NA),
                Soort_compensatie = ifelse(is.na(Seizoen_id_Prev), "Debuut","Opleiding"),
@@ -98,5 +104,5 @@
         select(Persoon_id, BVO, Volledige_naam, Compensatie_seizoen, Seizoen_id, 
                Seizoen_id_Prev, Eerste_elftal, Soort_compensatie, Compensatie) 
 
-    openxlsx::write.xlsx(tbl_RendementClub, "output/dat_RendementClub.xlsx")    
+    openxlsx::write.xlsx(tbl_RendementClub, "output/dat_RendementClub_2.xlsx")    
     

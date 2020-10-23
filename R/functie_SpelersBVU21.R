@@ -64,8 +64,8 @@
                         left_join(
                                 data.frame(
                                         Peildatum =
-                                                seq(as.Date("1991/1/1"), as.Date("2020/1/1"), "years"),
-                                        Seizoen_id = seq(1990, 2019)
+                                                seq(as.Date("1991/1/1"), as.Date("2021/1/1"), "years"),
+                                        Seizoen_id = seq(1990, 2020)
                                 ),
                                 by = c("Seizoen_id")
                         ) %>%
